@@ -22,10 +22,11 @@ class Scanner:
     Instantiates Targets() and Detector()
     """
     def scan(ip):
-        for i in range(0, 65535):
+        for i in range(1, 1024):
             s = socket(AF_INET, SOCK_STREAM)
-
-            connection = s.connect_ex((t_IP, i))
+            if i == 25:
+                i += 1
+            connection = s.connect_ex((ip, i))
             if connection == 0:
                 print("Port ", i,": OPEN", sep='')
             s.close()
