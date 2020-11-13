@@ -2,7 +2,7 @@ __author__ = "Timothy Beal"
 __copyright__ = "Copyright 2020"
 __credits__ = ["Timothy Beal"]
 __license__ = "GPLv3"
-__version__ = "0.0.0"
+__version__ = "0.0.1"
 __maintainer__ = "Timothy Beal"
 __status__ = "In Development"
 
