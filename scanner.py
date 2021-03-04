@@ -18,9 +18,18 @@ class Scanner:
 
     ----------
     Attributes:
-    Instantiates Targets() and Detector()
+    ip: string
+    target_info: dictionary
     """
     def scan(ip):
+    """
+    Calls a sub process to nmap with OS detection enabled 
+    and stored the output in target_info
+
+    ----------
+    Parameter:
+    ip: int
+    """
         test = False
         output = subprocess.check_output(["sudo", "nmap", "-O", "-oN", "temp.txt", ip])
         inFile = open('temp.txt', 'r')
