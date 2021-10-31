@@ -2,34 +2,65 @@
 
 import sys
 import socket
+import signal
 
-host = '10.0.1.162'
-port = 64295
+hosts = ("10.0.1.162",)
+port = 64295 #22
 
 
-def test_size():
+def test_size(host):
     tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    tcp_socket.connect((host, port))
-    received = tcp_socket.recv(1024)
+    response = ""
+
+    try:    # need a timer so that we can (a) track duration & (b) send ctrl-c if connect is hung
+        print("\tConnecting to: {0}".format(host))
+        tcp_socket.connect((host, port))
+
     
-    tcp_socket.send(received)
-    response = tcp_socket.recv(1024)
-    
+        received = tcp_socket.recv(1024)
+        print("\t{0} replied {1}".format(host, received))
+
+        tcp_socket.send(received)
+        response = tcp_socket.recv(1024)
+        print("\t{0} replied {1}".format(host, response))
+
+        tcp_socket.close()
+
+    except:
+        pass
+
     return sys.getsizeof(response)
 
-    tcp_socket.close()
+def load_hosts():
+    hosts_file = "host_list.txt" # we can take this an an argv later
 
+    with open(hosts_file) as f:
+        hosts = f.readlines()
+        hosts = [host.rstrip() for host in hosts] 
+
+    return hosts
+    
 def test_refused():
-    counter = 6
+    counter = 11
 
     while counter > 0:
         suffix = str(counter)
         suffix = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         suffix.connect((host, port))
         received = suffix.recv(1024)
-        print("...sending return")
+        print("The counter is " + str(counter))
 
-        suffix.send(str.encode('\n'))
+        if counter == 11:
+            suffix.send(str.encode('yes\n'))
+
+        print("...sending return")
+        try:
+            suffix.send(str.encode('\n\n'))
+        except Exception as e:
+            if "ConnectionRefusedError" in str(e):
+                print("Probably not a honeypot")
+        
+
         response = suffix.recv(1024)
         print(response)
 
@@ -38,6 +69,11 @@ def test_refused():
 
 
 if __name__ == "__main__":
-    if test_size() == 625:
-        print("It might be a honeypot")
-        #test_refused()
+    #hosts = load_hosts()
+    
+    for host in hosts:
+        print("Querying host: " + host)
+        if test_size(host) == 625:
+            print("Host {0} might be a honeypot".format(host))
+    
+    #test_refused()
